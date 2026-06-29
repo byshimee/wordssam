@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국어 척척박사 선생님</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0fdfa; /* Soft mint background */
+        }
+        h1, h2, h3, .title-font {
+            font-family: 'Jua', sans-serif;
+        }
+        .hidden-step {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade-in {
+            display: block;
+            opacity: 1;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #34d399;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 p-4 md:p-8 flex justify-center">
+
+    <div class="max-w-2xl w-full">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="text-6xl mb-2">👩‍🏫</div>
+            <h1 class="text-4xl text-teal-600 mb-2">국어 척척박사 선생님</h1>
+            <p class="text-lg text-teal-800 font-medium">모르는 단어가 있나요? 선생님에게 물어보세요!</p>
+        </header>
+
+        <main class="space-y-6">
+            <!-- Step 1: Word Input -->
+            <section id="step1-container" class="bg-white rounded-3xl shadow-lg p-6 border-4 border-teal-100">
+                <h2 class="title-font text-2xl text-teal-700 mb-4 flex items-center">
+                    <span class="text-3xl mr-2">1️⃣</span> 궁금한 단어를 알려주세요!
+                </h2>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="word-input" placeholder="예: 배려, 책임감, 허둥지둥" 
+                        class="flex-1 text-lg p-4 rounded-xl border-2 border-gray-200 focus:border-teal-400 focus:outline-none transition-colors">
+                    <button id="ask-word-btn" onclick="askWord()" 
+                        class="bg-teal-500 hover:bg-teal-600 text-white title-font text-xl py-4 px-8 rounded-xl shadow-md transition-transform transform hover:scale-105">
+                        물어보기 ✨
+                    </button>
+                </div>
+                <div id="word-loading" class="hidden mt-4 text-center text-teal-600 font-medium">
+                    <span class="loader mr-2"></span> 선생님이 사전을 찾아보고 있어요...
+                </div>
+                <div id="word-error" class="hidden mt-4 text-center text-red-500 font-medium"></div>
+            </section>
+
+            <!-- Step 1: Result (Definition) -->
+            <section id="step1-result" class="hidden-step bg-yellow-50 rounded-3xl shadow-lg p-6 border-4 border-yellow-200 relative">
+                <div class="absolute -top-4 -left-4 text-4xl">💡</div>
+                <h3 class="title-font text-2xl text-yellow-700 mb-4">선생님의 설명</h3>
+                <div class="space-y-4 text-lg">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-yellow-100">
+                        <strong class="text-yellow-600">📖 뜻:</strong>
+                        <p id="result-definition" class="mt-1 font-medium text-gray-700"></p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-yellow-100">
+                        <strong class="text-yellow-600">👀 이럴 때 써요:</strong>
+                        <p id="result-example" class="mt-1 text-gray-700"></p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-yellow-100">
+                        <strong class="text-yellow-600">🤝 비슷한 친구들:</strong>
+                        <p id="result-synonyms" class="mt-1 text-gray-700"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Sentence Practice Input -->
+            <section id="step2-container" class="hidden-step bg-white rounded-3xl shadow-lg p-6 border-4 border-blue-100">
+                <h2 class="title-font text-2xl text-blue-700 mb-4 flex items-center">
+                    <span class="text-3xl mr-2">2️⃣</span> 직접 문장을 만들어볼까요?
+                </h2>
+                <p class="text-gray-600 mb-4 font-medium">배운 단어 <strong id="practice-word" class="text-blue-600 text-xl mx-1"></strong>를 사용해서 짧은 문장을 만들어보세요!</p>
+                <div class="flex flex-col gap-3">
+                    <textarea id="sentence-input" rows="3" placeholder="여기에 문장을 적어주세요." 
+                        class="w-full text-lg p-4 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none transition-colors resize-none"></textarea>
+                    <button id="check-sentence-btn" onclick="checkSentence()" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white title-font text-xl py-4 px-8 rounded-xl shadow-md transition-transform transform hover:scale-105 self-end w-full sm:w-auto">
+                        선생님 확인해주세요! 🙋‍♂️
+                    </button>
+                </div>
+                <div id="sentence-loading" class="hidden mt-4 text-center text-blue-600 font-medium">
+                    <span class="loader mr-2"></span> 선생님이 문장을 꼼꼼히 읽고 있어요...
+                </div>
+                <div id="sentence-error" class="hidden mt-4 text-center text-red-500 font-medium"></div>
+            </section>
+
+            <!-- Step 2: Result (Feedback) -->
+            <section id="step2-result" class="hidden-step bg-blue-50 rounded-3xl shadow-lg p-6 border-4 border-blue-200 relative">
+                <div id="feedback-icon" class="absolute -top-4 -left-4 text-5xl">💌</div>
+                <h3 class="title-font text-2xl text-blue-800 mb-4">선생님의 편지</h3>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-100">
+                    <p id="result-feedback" class="text-lg text-gray-800 leading-relaxed font-medium whitespace-pre-wrap"></p>
+                </div>
+            </section>
+
+            <!-- Reset Button -->
+            <section id="reset-container" class="hidden-step text-center pt-4 pb-8">
+                <button onclick="resetApp()" 
+                    class="bg-purple-500 hover:bg-purple-600 text-white title-font text-xl py-4 px-10 rounded-full shadow-lg transition-transform transform hover:scale-105 inline-flex items-center">
+                    <span class="mr-2 text-2xl">🔄</span> 다른 단어도 물어볼래요!
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // API Key - environment will provide it, keep empty
+        const apiKey = ""; 
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        let currentWord = "";
+
+        // Common API fetch function with exponential backoff
+        async function fetchGeminiAPI(payload, loadingId, errorId) {
+            const loadingEl = document.getElementById(loadingId);
+            const errorEl = document.getElementById(errorId);
+            
+            loadingEl.classList.remove('hidden');
+            errorEl.classList.add('hidden');
+
+            const maxRetries = 5;
+            const baseDelay = 1000;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    loadingEl.classList.add('hidden');
+                    return JSON.parse(data.candidates[0].content.parts[0].text);
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        loadingEl.classList.add('hidden');
+                        errorEl.innerText = "앗, 선생님 연결이 잠시 끊어졌어요. 다시 한번 버튼을 눌러주세요!";
+                        errorEl.classList.remove('hidden');
+                        throw error;
+                    }
+                    // Exponential backoff
+                    await new Promise(res => setTimeout(res, baseDelay * Math.pow(2, i)));
+                }
+            }
+        }
+
+        async function askWord() {
+            const wordInput = document.getElementById('word-input');
+            const word = wordInput.value.trim();
+
+            if (!word) {
+                alert("궁금한 단어를 먼저 입력해주세요!");
+                wordInput.focus();
+                return;
+            }
+
+            // Disable input & button while loading
+            wordInput.disabled = true;
+            document.getElementById('ask-word-btn').disabled = true;
+            currentWord = word;
+
+            const systemPrompt = `너는 아주 다정하고 친절한 대한민국 초등학교 3학년 선생님이야. 학생이 모르는 단어에 대해 질문했어.`;
+            const userPrompt = `학생이 질문한 단어: "${word}"\n이 단어의 뜻을 초등학교 3학년 수준에 딱 맞게 이해하기 쉽게 한 줄로 설명해주고, 이 단어가 사용될 수 있는 재미있거나 일상적인 상황 예시 하나, 그리고 비슷한 단어 2~3개를 추천해줘.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            definition: { type: "STRING", description: "초등학교 3학년 눈높이에 맞춘 한 줄 뜻풀이" },
+                            example: { type: "STRING", description: "단어가 쓰이는 일상적이고 재미있는 상황 예시 문장" },
+                            synonyms: { type: "STRING", description: "비슷한 의미를 가진 단어 2~3개 (콤마로 구분)" }
+                        },
+                        required: ["definition", "example", "synonyms"]
+                    }
+                }
+            };
+
+            try {
+                const result = await fetchGeminiAPI(payload, 'word-loading', 'word-error');
+                
+                // Populate Results
+                document.getElementById('result-definition').innerText = result.definition;
+                document.getElementById('result-example').innerText = result.example;
+                document.getElementById('result-synonyms').innerText = result.synonyms;
+
+                // Show Step 1 Result
+                const step1Result = document.getElementById('step1-result');
+                step1Result.classList.remove('hidden-step');
+                step1Result.classList.add('fade-in');
+
+                // Prepare and Show Step 2 Container
+                document.getElementById('practice-word').innerText = `'${word}'`;
+                const step2Container = document.getElementById('step2-container');
+                setTimeout(() => {
+                    step2Container.classList.remove('hidden-step');
+                    step2Container.classList.add('fade-in');
+                    document.getElementById('sentence-input').focus();
+                }, 500);
+
+            } catch (error) {
+                console.error("Failed to fetch word info:", error);
+                wordInput.disabled = false;
+                document.getElementById('ask-word-btn').disabled = false;
+            }
+        }
+
+        async function checkSentence() {
+            const sentenceInput = document.getElementById('sentence-input');
+            const sentence = sentenceInput.value.trim();
+
+            if (!sentence) {
+                alert("문장을 먼저 입력해주세요!");
+                sentenceInput.focus();
+                return;
+            }
+
+            // Disable input & button while loading
+            sentenceInput.disabled = true;
+            document.getElementById('check-sentence-btn').disabled = true;
+
+            const systemPrompt = `너는 아주 다정하고 따뜻한 대한민국 초등학교 3학년 선생님이야. 항상 칭찬을 아끼지 않고, 틀린 부분이 있어도 아이가 상처받지 않게 예쁘게 고쳐주는 역할을 해.`;
+            const userPrompt = `단어: "${currentWord}"\n학생이 만든 문장: "${sentence}"\n\n이 문장이 주어진 단어의 의미와 문맥에 맞게 잘 사용되었는지 평가해줘. 맞으면 폭풍 칭찬을 해주고, 혹시 단어의 뜻과 안 맞거나 어색하다면 아주 다정하게 어떻게 고치면 좋을지 설명해줘. 학생에게 직접 말하는 것처럼 '~해요', '~습니다' 말투를 써줘.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            isCorrect: { type: "BOOLEAN", description: "문맥상 올바르게 사용되었는지 여부" },
+                            feedback: { type: "STRING", description: "학생에게 해주는 따뜻하고 구체적인 피드백 (칭찬 또는 교정)" }
+                        },
+                        required: ["isCorrect", "feedback"]
+                    }
+                }
+            };
+
+            try {
+                const result = await fetchGeminiAPI(payload, 'sentence-loading', 'sentence-error');
+                
+                // Populate Feedback
+                document.getElementById('result-feedback').innerText = result.feedback;
+                
+                // Change icon based on correctness
+                const iconEl = document.getElementById('feedback-icon');
+                if (result.isCorrect) {
+                    iconEl.innerText = "🎉";
+                } else {
+                    iconEl.innerText = "🌱";
+                }
+
+                // Show Step 2 Result
+                const step2Result = document.getElementById('step2-result');
+                step2Result.classList.remove('hidden-step');
+                step2Result.classList.add('fade-in');
+
+                // Show Reset Button
+                const resetContainer = document.getElementById('reset-container');
+                setTimeout(() => {
+                    resetContainer.classList.remove('hidden-step');
+                    resetContainer.classList.add('fade-in');
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }, 500);
+
+            } catch (error) {
+                console.error("Failed to fetch sentence feedback:", error);
+                sentenceInput.disabled = false;
+                document.getElementById('check-sentence-btn').disabled = false;
+            }
+        }
+
+        function resetApp() {
+            // Reset variables
+            currentWord = "";
+
+            // Reset inputs and enable them
+            const wordInput = document.getElementById('word-input');
+            wordInput.value = "";
+            wordInput.disabled = false;
+            document.getElementById('ask-word-btn').disabled = false;
+
+            const sentenceInput = document.getElementById('sentence-input');
+            sentenceInput.value = "";
+            sentenceInput.disabled = false;
+            document.getElementById('check-sentence-btn').disabled = false;
+
+            // Hide sections
+            const sectionsToHide = [
+                'step1-result',
+                'step2-container',
+                'step2-result',
+                'reset-container'
+            ];
+
+            sectionsToHide.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.add('hidden-step');
+                el.classList.remove('fade-in');
+            });
+
+            // Scroll to top and focus
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                wordInput.focus();
+            }, 500);
+        }
+
+        // Enter key listeners
+        document.getElementById('word-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                askWord();
+            }
+        });
+    </script>
+</body>
+</html>
