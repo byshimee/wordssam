@@ -135,12 +135,12 @@
 
     <script>
         // 1. 발급받으신 Gemini API 키를 여기에 입력하세요.
-        const apiKey = ""; 
+        const apiKey = "AQ.Ab8RN6IClU8FpLIe0VBOOe0_rhTmHIUAIUz2YaVNlFkxvUldfQ"; 
         
         // 2. 안정적인 표준 모델 엔드포인트 사용
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-        let currentWord = "AQ.Ab8RN6IClU8FpLIe0VBOOe0_rhTmHIUAIUz2YaVNlFkxvUldfQ";
+        let currentWord = "";
 
         // API 호출 함수 (지수 백오프 및 안전한 파싱 적용)
         async function fetchGeminiAPI(payload, loadingId, errorId) {
